@@ -13,5 +13,8 @@
     "chokidar": "^3.5.1",
     "esbuild": "^0.12.5",
     "live-server": "^1.2.1"
+  },
+  "dependencies": {
+    "tone": "^14.7.77"
   }
 }

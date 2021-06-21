@@ -1,10 +1,32 @@
 body {
-  background-color: rgb(255, 255, 255);
+  background-color: rgb(247, 229, 234);
+}
+#canvas-background{
+  
+}
+button{
+  background-color: lightgoldenrodyellow;
+  border-color: #d5d586;
 }
 .container{
-  position: fixed;
+  position: absolute;
   top: 50%;
   left: 50%;
   /* bring your own prefixes */
   transform: translate(-50%, -50%);
+}
+.wrapper{
+  outline-style: outset;
+  outline: #4AE137 6px outset;
+  position:relative;
+  width:600px;
+  height:600px;
+}
+.wrapper canvas{
+  
+  /* border-style: outset;
+  border-width: 3px; */
+  position: absolute;
+  top: 0;
+  left: 0;
 }

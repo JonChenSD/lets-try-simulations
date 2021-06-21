@@ -1,18 +1,33 @@
 import "./main.css";
+import * as Tone from 'tone'
 
 // src/main.js
 
+//synth
+const notes = ['C','C#','D','D#','E','F','G','G#','A','A#','B']
+
+const synth = new Tone.Synth().toDestination()
+Tone.start()
+
+synth.triggerAttackRelease("C4", "8n");
 // canvas
-let canvas = document.getElementById("canvas");
-let context = canvas.getContext("2d");
+let canvas = document.getElementById("canvas")
+let background = document.getElementById("canvas-background")
+let context = canvas.getContext("2d")
+let backgroundContext = background.getContext("2d")
+
+context.font = 'italic 400 80px, sans-serif';
 // canvas width
-let canvasW = 400
+let canvasW = 600
 // canvas height
-let canvasH = 400
+let canvasH = 600
 // Padding
 let p = 0
 //box width/height
 let boxWH = 20
+
+// Chosen block
+let currentBlock = '✿'
 
 //instantiate boxes for grid
 let arrayOfBoxes = []
@@ -40,7 +55,7 @@ function randomizeGrid(){
         arrayOfBoxes.push([])
         for (let y = 0; y < canvasW; y += boxWH) {
             if(Math.floor(Math.random() * (document.getElementById('randomInterval').value) * .4) === 0){
-                arrayOfBoxes[x].push(true)
+                arrayOfBoxes[x].push(currentBlock)
             }
             else{
                 arrayOfBoxes[x].push(false)
@@ -67,19 +82,32 @@ function clearGrid(){
 }
 
 //Draw Grid
+function drawBackground(){
+    for (let y = 0; y < canvasW; y += boxWH) {
+        for (let x = 0; x < canvasW; x += boxWH) {
+            // console.log(arrayOfBoxes[x/boxWH][y/boxWH])
+            if (((x/boxWH) % 2 == 0 && (y/boxWH) % 2 == 0) || ((x/boxWH) % 2 != 0 && (y/boxWH) % 2 != 0)){
+                backgroundContext.fillStyle = "#4AE137"
+            } else{
+                backgroundContext.fillStyle = "#A4F0AF"
+            }
+                
+                backgroundContext.fillRect(x, y,boxWH,boxWH)
+            
+            
+        }
+
+    }
+}
+drawBackground()
 
 function drawBoard(){
-    for (let x = boxWH; x < canvasW; x += boxWH) {
-        context.moveTo(0.5 + x + p, p);
-        context.lineTo(0.5 + x + p, canvasH + p);
-    }
+        
+   
+    
+    
+  
 
-    for (let x = boxWH; x < canvasH; x += boxWH) {
-        context.moveTo(p, 0.5 + x + p);
-        context.lineTo(canvasW + p, 0.5 + x + p);
-    }
-    context.strokeStyle = "black";
-    context.stroke();
 }
 
 //goes through array of boxes and draws the rectangles
@@ -89,8 +117,16 @@ function drawRectangles(){
     for (let x = 0; x < canvasW; x += boxWH) {
         for (let y = 0; y < canvasW; y += boxWH) {
             // console.log(arrayOfBoxes[x/boxWH][y/boxWH])
-            if(arrayOfBoxes[x/boxWH][y/boxWH] === true){
-                context.fillRect(x, y,boxWH,boxWH)
+            console.log(arrayOfBoxes[x/boxWH][y/boxWH])
+            
+            if(typeof arrayOfBoxes[x/boxWH][y/boxWH] == "string"){
+                
+                context.font = ' 24px sans-serif'
+                context.fillStyle = "yellow"
+                if(arrayOfBoxes[x/boxWH][y/boxWH] !== false){
+                    console.log(arrayOfBoxes[x/boxWH][y/boxWH])
+                }
+                context.fillText(arrayOfBoxes[x/boxWH][y/boxWH], x, (y +18), boxWH)
             }
             
         }
@@ -98,27 +134,14 @@ function drawRectangles(){
     }
 
     
-    context.fillStyle = "black";
-    context.fill();
+
 }
 clearedGrid();
 
 //Game of life mechanics
 
-/*
-Any live cell with fewer than two live neighbours dies, as if by underpopulation.
-Any live cell with two or three live neighbours lives on to the next generation.
-Any live cell with more than three live neighbours dies, as if by overpopulation.
-Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-*/
 
-for(let i = -1; i < 2; i++) {
-    for(let j = -1; j < 2; j++){
-        let column = (2 + i + boxWH) % boxWH
-        let row = (2 + j + boxWH) % boxWH
-        console.log(column,row)
-    }
-}
+
 //runs through one cycle of the game 
 function oneCycle(){
     console.log(arrayOfBoxes)
@@ -133,36 +156,36 @@ function oneCycle(){
             for(let i = -1; i < 2; i++) {
                 for(let j = -1; j < 2; j++){
                     
-                        let column = (x + i + boxWH) % boxWH
-                        let row = (y + j + boxWH) % boxWH
+                        // let column = (x + i + boxWH) % boxWH
+                        // let row = (y + j + boxWH) % boxWH
                        
-                        if(tempArray[column][row]){
-                            aliveNeighbours += 1
-                        }
+                        // if(tempArray[column][row]){
+                        //     aliveNeighbours += 1
+                        // }
 
                         
                     
                    
                 }
             }
-            if(tempArray[x][y] == true){
-                aliveNeighbours -= 1
-            }
-            if(aliveNeighbours > 0){
-                console.log(aliveNeighbours, y, x)
+            console.log(typeof tempArray[x][y])
+            if(tempArray[x][y] == "✿"){
+                console.log('move flower')
+                let tempChar = tempArray[x][y]
+                console.log(tempChar)
+                arrayOfBoxes[x][y] = false
+                if((x + 1) == (tempArray.length - 1)){
+                    const note = notes[(y % 11)]
+                    synth.triggerAttackRelease(note + 4, "8n");
+                }
+                if((x + 1) !== (tempArray.length)){
+                    console.log('should continue')
+                    arrayOfBoxes[x + 1][y] = tempChar
+                }
+                
             }
             
-            if(tempArray[x][y] == false && aliveNeighbours == 3){
-                arrayOfBoxes[x][y] = true
-                console.log('keep alive tempArray', x, y, '2-3 alive', aliveNeighbours)
-            }
-            else if(tempArray[x][y] == true && (aliveNeighbours < 2 || aliveNeighbours > 3)){
-                arrayOfBoxes[x][y] = false
-                console.log('kill tempArray', x, y, '2-3 alive', aliveNeighbours)
-            }
-            else{
-                arrayOfBoxes[x][y] = tempArray[x][y]
-            }
+           
         }
     }
     console.log(arrayOfBoxes)
@@ -181,7 +204,13 @@ canvas.addEventListener("click", (e) => {
     const x = Math.floor((e.clientX - canvasDIM.left)/20)
     const y = Math.floor((e.clientY - canvasDIM.top)/20)
 
-    arrayOfBoxes[x][y] = !arrayOfBoxes[x][y]
+    if(typeof arrayOfBoxes[x][y] == "string"){
+        arrayOfBoxes[x][y] = false
+    }else{
+        arrayOfBoxes[x][y] = currentBlock
+    }
+
+
     let tempArray = arrayOfBoxes
     clearGrid()
     arrayOfBoxes = tempArray
@@ -192,13 +221,13 @@ canvas.addEventListener("click", (e) => {
 
 //Button commands
 
-//randomizes grid
+// randomizes grid
 document.getElementById('randomBtn').addEventListener("click", (e) => {
     randomizeGrid()
     drawRectangles()
 })
 
-//clears the grid
+// clears the grid
 document.getElementById('clearBtn').addEventListener("click", (e) => {
     clearGrid()
 })
@@ -208,6 +237,7 @@ document.getElementById('clearBtn').addEventListener("click", (e) => {
 const startBtn = document.getElementById('startBtn')
 
 startBtn.addEventListener("click", (e) => {
+    
     if(startBtn.innerHTML == 'start'){
         setCycle = setInterval(oneCycle, 50 * document.getElementById('stepInterval').value)
         startBtn.innerHTML = 'pause'
@@ -219,4 +249,9 @@ startBtn.addEventListener("click", (e) => {
         startBtn.innerHTML = 'start'
     }
     
+})
+
+document.querySelector('button')?.addEventListener('click', async () => {
+	await Tone.start()
+	console.log('audio is ready')
 })
