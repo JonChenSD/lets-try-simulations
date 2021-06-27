@@ -10,3 +10,20 @@ Used to look at general mechanics
 
 https://www.youtube.com/watch?v=FWSR_7kZuYg
 coding trains tutorial, viewed to see how he wrote the rule set for conways game of life 
+
+structuring for a block
+[content type]
+
+
+TODO:
+
+spinners
+addboid
+extended notes
+add octaves
+
+git commands
+git add .
+git commit -m " "
+git push -u origin main
+

@@ -6,7 +6,20 @@ import * as Tone from 'tone'
 //synth
 const notes = ['C','C#','D','D#','E','F','G','G#','A','A#','B']
 
-const synth = new Tone.Synth().toDestination()
+const now = Tone.now()
+
+const polySynth = new Tone.PolySynth(Tone.Synth).toDestination();
+const synth = new Tone.Synth().toDestination();
+
+const monoSynth = new Tone.MonoSynth({
+	oscillator: {
+		type: "square"
+	},
+	envelope: {
+		attack: 0.1
+	}
+}).toDestination();
+
 Tone.start()
 
 synth.triggerAttackRelease("C4", "8n");
@@ -27,7 +40,7 @@ let p = 0
 let boxWH = 20
 
 // Chosen block
-let currentBlock = '✿'
+let currentBlock = '→'
 
 //instantiate boxes for grid
 let arrayOfBoxes = []
@@ -143,7 +156,13 @@ clearedGrid();
 
 
 //runs through one cycle of the game 
+let interval = 0
 function oneCycle(){
+    if (interval == 3){
+        interval = 0
+    } else {
+        interval = interval + 1
+    }
     console.log(arrayOfBoxes)
     const tempArray = arrayOfBoxes
     clearedGrid()
@@ -168,20 +187,120 @@ function oneCycle(){
                    
                 }
             }
+            
             console.log(typeof tempArray[x][y])
-            if(tempArray[x][y] == "✿"){
-                console.log('move flower')
+            if(typeof tempArray[x][y] === 'string'){
+                //block generators
+                //🡸 🡺 🡹 🡻  🡨 🡪 🡩 🡫 
+                if(tempArray[x][y] === '🡸'){
+                    arrayOfBoxes[x][y] = '🡸'
+                    arrayOfBoxes[x - 1][y] = '←'
+                }
+                if(tempArray[x][y] === '🡺'){
+                    arrayOfBoxes[x][y] = '🡺'
+                    arrayOfBoxes[x + 1][y] = '→'
+                }
+                if(tempArray[x][y] === '🡹'){
+                    arrayOfBoxes[x][y] = '🡹'
+                    arrayOfBoxes[x][y + 1] = '↑'
+                }
+                if(tempArray[x][y] === '🡻'){
+                    arrayOfBoxes[x][y] = '🡻'
+                    arrayOfBoxes[x][y - 1] = '↓'
+                }
+                if(tempArray[x][y] === '🡨'){
+                    arrayOfBoxes[x][y] = '🡨'
+                    if( interval == 0){
+                        arrayOfBoxes[x - 1][y] = '←'
+                    }
+                    
+                }
+                if(tempArray[x][y] === '🡪'){
+                    arrayOfBoxes[x][y] = '🡪'
+                    if( interval == 0){
+                        arrayOfBoxes[x + 1][y] = '→'
+                    }
+                    
+                }
+                if(tempArray[x][y] === '🡩'){
+                    arrayOfBoxes[x][y] = '🡩'
+                    if( interval == 0){
+                        arrayOfBoxes[x][y - 1] = '↑'
+                    }
+                    
+                }
+                if(tempArray[x][y] === '🡫'){
+                    arrayOfBoxes[x][y] = '🡫'
+                    if( interval == 0){
+                        arrayOfBoxes[x][y + 1] = '↓'
+                    }
+                    
+                }
+
+
+                //arrow notes
+                if(tempArray[x][y] === '→'){
+                        console.log('move flower')
+                    let tempChar = tempArray[x][y]
+                    console.log(tempChar)
+                    arrayOfBoxes[x][y] = false
+                    if((x + 1) == (tempArray.length - 1)){
+                        const note = notes[(y % 11)]
+                        synth.triggerAttackRelease(note + 4, now);
+                        //synth.triggerAttackRelease(note + 4, "8n");
+                    }
+                    if((x + 1) !== (tempArray.length)){
+                        console.log('should continue')
+                        arrayOfBoxes[x + 1][y] = tempChar
+                    }
+                }
+                if(tempArray[x][y] === '←'){
+                    console.log('move flower')
                 let tempChar = tempArray[x][y]
                 console.log(tempChar)
                 arrayOfBoxes[x][y] = false
-                if((x + 1) == (tempArray.length - 1)){
+                if((x - 1) == -1){
                     const note = notes[(y % 11)]
-                    synth.triggerAttackRelease(note + 4, "8n");
+                    synth.triggerAttackRelease(note + 4, now);
+                    //synth.triggerAttackRelease(note + 4, "8n");
                 }
-                if((x + 1) !== (tempArray.length)){
+                if((x - 1) !== -1){
                     console.log('should continue')
-                    arrayOfBoxes[x + 1][y] = tempChar
+                    arrayOfBoxes[x - 1][y] = tempChar
                 }
+            }
+                if(tempArray[x][y] === '↓'){
+                    console.log('move flower')
+                let tempChar = tempArray[x][y]
+                console.log(tempChar)
+                arrayOfBoxes[x][y] = false
+                if((y + 1) == (tempArray.length - 1)){
+                    const note = notes[(x % 11)]
+                    monoSynth.triggerAttackRelease(note + 3, now);
+                    //synth.triggerAttackRelease(note + 4, "8n");
+                }
+                if((y + 1) !== (tempArray.length)){
+                    console.log('should continue')
+                    arrayOfBoxes[x][y + 1] = tempChar
+                }
+            }
+
+                if(tempArray[x][y] === '↑'){
+                    console.log('move flower')
+                let tempChar = tempArray[x][y]
+                console.log(tempChar)
+                arrayOfBoxes[x][y] = false
+                if((y - 1) == -1){
+                    const note = notes[(x % 11)]
+                    polySynth.triggerAttackRelease(note + 4, now);
+                    //synth.triggerAttackRelease(note + 4, "8n");
+                }
+                if((y - 1) !== -1){
+                    console.log('should continue')
+                    arrayOfBoxes[x][y - 1] = tempChar
+                }
+            }
+                
                 
             }
             
@@ -204,6 +323,7 @@ canvas.addEventListener("click", (e) => {
     const x = Math.floor((e.clientX - canvasDIM.left)/20)
     const y = Math.floor((e.clientY - canvasDIM.top)/20)
 
+   
     if(typeof arrayOfBoxes[x][y] == "string"){
         arrayOfBoxes[x][y] = false
     }else{
@@ -250,6 +370,48 @@ startBtn.addEventListener("click", (e) => {
     }
     
 })
+
+// instantiate buttons for tools
+
+let blockBtns = document.getElementsByClassName('block')
+
+console.log(blockBtns)
+
+for (let i = 0; i < blockBtns.length; i++) {
+    blockBtns[i].addEventListener("click", (e) => {
+        
+        currentBlock = blockBtns[i].innerText
+    })
+}
+
+// const flowerBtn = document.getElementById('flower')
+// const leftBtn = document.getElementById('left')
+// const rightBtn = document.getElementById('right')
+// const downBtn = document.getElementById('down')
+// const upBtn = document.getElementById('up')
+
+// flowerBtn.addEventListener("click", (e) => {
+//     currentBlock = '✿'
+// })
+
+
+// leftBtn.addEventListener("click", (e) => {
+//     currentBlock = '🡄'
+// })
+
+// rightBtn.addEventListener("click", (e) => {
+//     currentBlock = '🡆'
+// })
+
+// downBtn.addEventListener("click", (e) => {
+//     currentBlock = '🡇'
+// })
+
+// upBtn.addEventListener("click", (e) => {
+//     currentBlock = '🡅'
+// })
+
+//starts tone.js
 
 document.querySelector('button')?.addEventListener('click', async () => {
 	await Tone.start()
