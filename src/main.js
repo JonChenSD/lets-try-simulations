@@ -23,6 +23,12 @@ const monoSynth = new Tone.MonoSynth({
 Tone.start()
 
 synth.triggerAttackRelease("C4", "8n");
+
+//ascii list
+
+const arrowTypes = ['←','→','↑','↓']
+const spinnerTypes = ['│','⟋','―','⟍']
+
 // canvas
 let canvas = document.getElementById("canvas")
 let background = document.getElementById("canvas-background")
@@ -151,7 +157,31 @@ function drawRectangles(){
 }
 clearedGrid();
 
-//Game of life mechanics
+//Simulation mechanics
+
+//Functions for behavior
+function dogGrabNote(tempArray,x,y){
+    for(let i = -2; i <= 2; i += 1){
+        for(let j = -2; j <= 2; j += 1)
+        if(x + i < 0 || y + j < 0 || x + i > tempArray.length || y + j > tempArray.length)
+        {
+
+        } else{
+            for(let z = 0; z < arrowTypes.length; z += 1){
+                if(arrowTypes[z] == tempArray[x + i][y + j]){
+                    if(i != 0 && j != 0){
+                        //tempArray[x + i][y + j] == false
+                    synth.triggerAttackRelease(C4, now);
+                    }
+                    
+                }
+            }
+            
+        }
+        
+    }
+    
+}
 
 
 
@@ -237,6 +267,64 @@ function oneCycle(){
                     
                 }
 
+                //Spinner 
+                //Acts as a redirector for the arrows
+
+                for (let i = 0; i < spinnerTypes.length; i += 1){
+                    if(tempArray[x][y] == spinnerTypes[i] && i + 1 < spinnerTypes.length){
+                        arrayOfBoxes[x][y] = spinnerTypes[i + 1]
+                    } else if(tempArray[x][y] == spinnerTypes[i]){
+                        arrayOfBoxes[x][y] = spinnerTypes[0]
+                    }
+                }
+               
+
+                //Boids (dog?) 
+                //Randomly moves and fetches notes
+
+                if(tempArray[x][y] === '🐕'){
+                    console.log('move dog')
+                let tempChar = tempArray[x][y]
+                console.log(tempChar)
+                arrayOfBoxes[x][y] = false
+                //calculates random integer for direction of movement
+                let direction = Math.floor(Math.random()*8)
+                dogGrabNote(tempArray,x,y)
+                if(direction == 0){
+                    //right
+                    arrayOfBoxes[x + 1][y] = tempChar
+                } else if(direction == 1){
+                    //left
+                    arrayOfBoxes[x - 1][y] = tempChar
+                } else if(direction == 2){
+                    //up
+                    arrayOfBoxes[x][y + 1] = tempChar
+                } else if(direction == 3){
+                    // down
+                    arrayOfBoxes[x][y - 1] = tempChar
+                } else if(direction == 4){
+                    // top left
+                    arrayOfBoxes[x - 1][y + 1] = tempChar
+                } else if(direction == 5){
+                    // top right
+                    arrayOfBoxes[x + 1][y + 1] = tempChar
+                } else if(direction == 6){
+                    //bottom left
+                    arrayOfBoxes[x - 1][y - 1] = tempChar
+                } else if(direction == 7){
+                    //bottom righ
+                    arrayOfBoxes[x + 1][y - 1] = tempChar
+                }
+                // if((x + 1) == (tempArray.length - 1)){
+                //     const note = notes[(y % 11)]
+                //     synth.triggerAttackRelease(note + 4, now);
+                //     //synth.triggerAttackRelease(note + 4, "8n");
+                // }
+                // if((x + 1) !== (tempArray.length)){
+                //     console.log('should continue')
+                //     arrayOfBoxes[x + 1][y] = tempChar
+                // }
+            }
 
                 //arrow notes
                 if(tempArray[x][y] === '→'){
@@ -286,7 +374,7 @@ function oneCycle(){
             }
 
                 if(tempArray[x][y] === '↑'){
-                    console.log('move flower')
+                    
                 let tempChar = tempArray[x][y]
                 console.log(tempChar)
                 arrayOfBoxes[x][y] = false
