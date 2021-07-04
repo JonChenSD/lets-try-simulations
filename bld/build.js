@@ -19,7 +19,8 @@ const compile_js = () => {
       '.eot': 'file',
       '.woff': 'file',
       '.woff2': 'file',
-      '.ttf': 'file'
+      '.ttf': 'file',
+      '.mp3': 'file'
     },
 
     platform: 'node',

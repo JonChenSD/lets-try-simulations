@@ -20,6 +20,16 @@ const monoSynth = new Tone.MonoSynth({
 	}
 }).toDestination();
 
+const sampler = new Tone.Sampler({
+	urls: {
+		"A1": "\assets\bark.mp3"
+	},
+}).toDestination();
+
+Tone.loaded().then(() => {
+	sampler.triggerAttackRelease(["Eb4", "G4", "Bb4"], 4);
+})
+
 Tone.start()
 
 synth.triggerAttackRelease("C4", "8n");
@@ -50,14 +60,18 @@ let currentBlock = '→'
 
 //instantiate boxes for grid
 let arrayOfBoxes = []
+let arrayOfAgents = []
 function clearedGrid(){
     context.clearRect(0, 0, canvasH, canvasW);
     drawBoard()
     arrayOfBoxes = []
+    arrayOfAgents = []
     for (let x = 0; x < (canvasW/boxWH); x += 1) {
         arrayOfBoxes.push([])
+        arrayOfAgents.push([])
         for (let y = 0; y < canvasW; y += boxWH) {
                 arrayOfBoxes[x].push(false)
+                arrayOfAgents[x].push(false)
         }
     
     }
@@ -89,10 +103,13 @@ function clearGrid(){
     context.clearRect(0, 0, canvasH, canvasW);
     drawBoard()
     arrayOfBoxes = []
+    arrayOfAgents = []
     for (let x = 0; x < (canvasW/boxWH); x += 1) {
         arrayOfBoxes.push([])
+        arrayOfAgents.push([])
         for (let y = 0; y < canvasW; y += boxWH) {
                 arrayOfBoxes[x].push(false)
+                arrayOfAgents[x].push(false)
             
             
         }
@@ -136,16 +153,35 @@ function drawRectangles(){
     for (let x = 0; x < canvasW; x += boxWH) {
         for (let y = 0; y < canvasW; y += boxWH) {
             // console.log(arrayOfBoxes[x/boxWH][y/boxWH])
-            console.log(arrayOfBoxes[x/boxWH][y/boxWH])
-            
+            //console.log(arrayOfBoxes[x/boxWH][y/boxWH])
+            let boxFilled = false
+            //checks if the index is a string and draws the block
             if(typeof arrayOfBoxes[x/boxWH][y/boxWH] == "string"){
-                
+                boxFilled = true
                 context.font = ' 24px sans-serif'
                 context.fillStyle = "yellow"
                 if(arrayOfBoxes[x/boxWH][y/boxWH] !== false){
-                    console.log(arrayOfBoxes[x/boxWH][y/boxWH])
+                    //console.log(arrayOfBoxes[x/boxWH][y/boxWH])
                 }
                 context.fillText(arrayOfBoxes[x/boxWH][y/boxWH], x, (y +18), boxWH)
+            }
+
+            //same drawing proccess but for agents
+            if(typeof arrayOfAgents[x/boxWH][y/boxWH] == "string"){
+                
+                context.font = ' 24px sans-serif'
+                context.fillStyle = "yellow"
+                if(arrayOfAgents[x/boxWH][y/boxWH] !== false){
+                    console.log(arrayOfAgents[x/boxWH][y/boxWH])
+                }
+                //shifts the agent drawing a little to the right to overlay
+                if(boxFilled){
+                    context.fillText(arrayOfAgents[x/boxWH][y/boxWH], (x + 8), (y +18), boxWH)
+
+                }else{
+                    context.fillText(arrayOfAgents[x/boxWH][y/boxWH], x, (y +18), boxWH)
+
+                }
             }
             
         }
@@ -160,18 +196,26 @@ clearedGrid();
 //Simulation mechanics
 
 //Functions for behavior
+
+
 function dogGrabNote(tempArray,x,y){
-    for(let i = -2; i <= 2; i += 1){
-        for(let j = -2; j <= 2; j += 1)
-        if(x + i < 0 || y + j < 0 || x + i > tempArray.length || y + j > tempArray.length)
+    let tempi
+    let tempj
+    for(let i = -1; i <= 1; i += 1){
+        tempi = i
+        for(let j = -1; j <= 1; j += 1)
+        tempj = j
+        if(x + tempi < 0 || y + tempj < 0 || x + tempi > tempArray.length || y + tempj > tempArray.length)
         {
 
         } else{
             for(let z = 0; z < arrowTypes.length; z += 1){
-                if(arrowTypes[z] == tempArray[x + i][y + j]){
-                    if(i != 0 && j != 0){
+                if(arrowTypes[z] === tempArray[x + tempi][y + tempj]){
+                    if(tempi != 0 && tempj != 0){
                         //tempArray[x + i][y + j] == false
-                    synth.triggerAttackRelease(C4, now);
+                        tempArray[x + tempi][y + tempj] = false
+                        console.log('grab that note!')
+                    //synth.triggerAttackRelease(C4, now);
                     }
                     
                 }
@@ -195,6 +239,7 @@ function oneCycle(){
     }
     console.log(arrayOfBoxes)
     const tempArray = arrayOfBoxes
+    const tempArrayAgents = arrayOfAgents
     clearedGrid()
     for (let y = 0; y < tempArray.length; y += 1){
         for (let x = 0; x < tempArray.length; x += 1){
@@ -218,7 +263,47 @@ function oneCycle(){
                 }
             }
             
-            console.log(typeof tempArray[x][y])
+            //check agents first to adjust blocks before running the block cycle
+            if(typeof tempArrayAgents[x][y] === 'string'){
+                if(tempArrayAgents[x][y] === '🐕'){
+                    console.log('move dog')
+                let tempChar = tempArrayAgents[x][y]
+                console.log(tempChar)
+                arrayOfAgents[x][y] = false
+                //calculates random integer for direction of movement
+                let direction = Math.floor(Math.random()*8)
+                dogGrabNote(tempArray,x,y)
+
+                if(direction == 0){
+                    //right
+                    arrayOfAgents[x + 1][y] = tempChar
+                } else if(direction == 1){
+                    //left
+                    arrayOfAgents[x - 1][y] = tempChar
+                } else if(direction == 2){
+                    //up
+                    arrayOfAgents[x][y + 1] = tempChar
+                } else if(direction == 3){
+                    // down
+                    arrayOfAgents[x][y - 1] = tempChar
+                } else if(direction == 4){
+                    // top left
+                    arrayOfAgents[x - 1][y + 1] = tempChar
+                } else if(direction == 5){
+                    // top right
+                    arrayOfAgents[x + 1][y + 1] = tempChar
+                } else if(direction == 6){
+                    //bottom left
+                    arrayOfAgents[x - 1][y - 1] = tempChar
+                } else if(direction == 7){
+                    //bottom righ
+                    arrayOfAgents[x + 1][y - 1] = tempChar
+                }
+                
+            }
+
+
+            }
             if(typeof tempArray[x][y] === 'string'){
                 //block generators
                 //🡸 🡺 🡹 🡻  🡨 🡪 🡩 🡫 
@@ -232,11 +317,11 @@ function oneCycle(){
                 }
                 if(tempArray[x][y] === '🡹'){
                     arrayOfBoxes[x][y] = '🡹'
-                    arrayOfBoxes[x][y + 1] = '↑'
+                    arrayOfBoxes[x][y - 1] = '↑'
                 }
                 if(tempArray[x][y] === '🡻'){
                     arrayOfBoxes[x][y] = '🡻'
-                    arrayOfBoxes[x][y - 1] = '↓'
+                    arrayOfBoxes[x][y + 1] = '↓'
                 }
                 if(tempArray[x][y] === '🡨'){
                     arrayOfBoxes[x][y] = '🡨'
@@ -282,50 +367,7 @@ function oneCycle(){
                 //Boids (dog?) 
                 //Randomly moves and fetches notes
 
-                if(tempArray[x][y] === '🐕'){
-                    console.log('move dog')
-                let tempChar = tempArray[x][y]
-                console.log(tempChar)
-                arrayOfBoxes[x][y] = false
-                //calculates random integer for direction of movement
-                let direction = Math.floor(Math.random()*8)
-                dogGrabNote(tempArray,x,y)
-                if(direction == 0){
-                    //right
-                    arrayOfBoxes[x + 1][y] = tempChar
-                } else if(direction == 1){
-                    //left
-                    arrayOfBoxes[x - 1][y] = tempChar
-                } else if(direction == 2){
-                    //up
-                    arrayOfBoxes[x][y + 1] = tempChar
-                } else if(direction == 3){
-                    // down
-                    arrayOfBoxes[x][y - 1] = tempChar
-                } else if(direction == 4){
-                    // top left
-                    arrayOfBoxes[x - 1][y + 1] = tempChar
-                } else if(direction == 5){
-                    // top right
-                    arrayOfBoxes[x + 1][y + 1] = tempChar
-                } else if(direction == 6){
-                    //bottom left
-                    arrayOfBoxes[x - 1][y - 1] = tempChar
-                } else if(direction == 7){
-                    //bottom righ
-                    arrayOfBoxes[x + 1][y - 1] = tempChar
-                }
-                // if((x + 1) == (tempArray.length - 1)){
-                //     const note = notes[(y % 11)]
-                //     synth.triggerAttackRelease(note + 4, now);
-                //     //synth.triggerAttackRelease(note + 4, "8n");
-                // }
-                // if((x + 1) !== (tempArray.length)){
-                //     console.log('should continue')
-                //     arrayOfBoxes[x + 1][y] = tempChar
-                // }
-            }
-
+                
                 //arrow notes
                 if(tempArray[x][y] === '→'){
                         console.log('move flower')
@@ -349,7 +391,8 @@ function oneCycle(){
                 arrayOfBoxes[x][y] = false
                 if((x - 1) == -1){
                     const note = notes[(y % 11)]
-                    synth.triggerAttackRelease(note + 4, now);
+                    //synth.triggerAttackRelease(note + 4, now);
+                    sampler.triggerAttackRelease(note + 4, 0.5);
                     //synth.triggerAttackRelease(note + 4, "8n");
                 }
                 if((x - 1) !== -1){
@@ -411,17 +454,28 @@ canvas.addEventListener("click", (e) => {
     const x = Math.floor((e.clientX - canvasDIM.left)/20)
     const y = Math.floor((e.clientY - canvasDIM.top)/20)
 
-   
-    if(typeof arrayOfBoxes[x][y] == "string"){
+    if(typeof arrayOfBoxes[x][y] == "string" && arrayOfAgents[x][y] !== '🐕' && currentBlock === '🐕'){
+        console.log('attatched dog on top',)
+        arrayOfAgents[x][y] = currentBlock
+    }else if(typeof arrayOfAgents[x][y] == "string"){
+        arrayOfAgents[x][y] = false
+    }else if(typeof arrayOfBoxes[x][y] == "string"){
         arrayOfBoxes[x][y] = false
     }else{
-        arrayOfBoxes[x][y] = currentBlock
+        if(currentBlock === '🐕'){
+            console.log('placed dog!')
+            arrayOfAgents[x][y] = currentBlock
+        }else{
+            arrayOfBoxes[x][y] = currentBlock
+        }
+        
     }
 
-
-    let tempArray = arrayOfBoxes
+    if(currentBlock === '🐕'){}
+    let tempArray = [arrayOfBoxes,arrayOfAgents]
     clearGrid()
-    arrayOfBoxes = tempArray
+    arrayOfBoxes = tempArray[0]
+    arrayOfAgents = tempArray[1]
     drawRectangles()
     console.log(x,y)
     console.log(arrayOfBoxes[x])
