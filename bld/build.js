@@ -51,13 +51,13 @@ watcher.on('ready', async () => {
 })
 
 
-liveserver.start({
-  open: true,
-  host: '0.0.0.0',
-  port: 8080,
-  root: "pub",
-  loglevel: 0
-});
+// liveserver.start({
+//   open: true,
+//   host: '0.0.0.0',
+//   port: 8080,
+//   root: "pub",
+//   loglevel: 0
+// });
 
 module.exports = 'pub/bundle.js'
   
