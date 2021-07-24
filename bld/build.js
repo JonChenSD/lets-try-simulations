@@ -58,3 +58,6 @@ liveserver.start({
   root: "pub",
   loglevel: 0
 });
+
+module.exports = 'pub/bundle.js'
+  
