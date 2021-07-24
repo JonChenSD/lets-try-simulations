@@ -22,17 +22,45 @@ const monoSynth = new Tone.MonoSynth({
 
 const sampler = new Tone.Sampler({
 	urls: {
-		"A1": "\assets\bark.mp3"
+		A1: "bark.mp3",
+		A2: "bark2.mp3",
 	},
+	baseUrl: "./assets/",
+	onload: () => {
+		sampler.triggerAttackRelease(["C1", "E1", "G1", "B1"], 0.5);
+	}
 }).toDestination();
 
+const bongo = new Tone.Sampler({
+	urls: {
+		A1: "bongo1.mp3",
+		A2: "bongo2.mp3",
+	},
+	baseUrl: "./assets/",
+	onload: () => {
+		bongo.triggerAttackRelease(["C1", "E1", "G1", "B1"], 0.5);
+	}
+}).toDestination();
+
+const trumpet = new Tone.Sampler({
+	urls: {
+		G2: "trumpetG2.mp3",
+		
+	},
+	baseUrl: "./assets/",
+	onload: () => {
+		trumpet.triggerAttackRelease(["C1", "E1", "G1", "B1"], .8);
+	}
+}).toDestination();
+
+const player = new Tone.Player("./assets/bark.mp3").toDestination();
 Tone.loaded().then(() => {
-	sampler.triggerAttackRelease(["Eb4", "G4", "Bb4"], 4);
-})
+	player.start();
+});
 
 Tone.start()
 
-synth.triggerAttackRelease("C4", "8n");
+//synth.triggerAttackRelease("C4", "8n");
 
 //ascii list
 
@@ -159,6 +187,7 @@ function drawRectangles(){
             if(typeof arrayOfBoxes[x/boxWH][y/boxWH] == "string"){
                 boxFilled = true
                 context.font = ' 24px sans-serif'
+                
                 context.fillStyle = "yellow"
                 if(arrayOfBoxes[x/boxWH][y/boxWH] !== false){
                     //console.log(arrayOfBoxes[x/boxWH][y/boxWH])
@@ -170,9 +199,14 @@ function drawRectangles(){
             if(typeof arrayOfAgents[x/boxWH][y/boxWH] == "string"){
                 
                 context.font = ' 24px sans-serif'
-                context.fillStyle = "yellow"
+                if(arrayOfAgents[x/boxWH][y/boxWH] == "⇈"){
+                    context.fillStyle = "white"
+                } else{
+                    context.fillStyle = "yellow"
+                }
+                
                 if(arrayOfAgents[x/boxWH][y/boxWH] !== false){
-                    console.log(arrayOfAgents[x/boxWH][y/boxWH])
+                    //console.log(arrayOfAgents[x/boxWH][y/boxWH])
                 }
                 //shifts the agent drawing a little to the right to overlay
                 if(boxFilled){
@@ -210,15 +244,23 @@ function dogGrabNote(tempArray,x,y){
 
         } else{
             for(let z = 0; z < arrowTypes.length; z += 1){
-                if(arrowTypes[z] === tempArray[x + tempi][y + tempj]){
-                    if(tempi != 0 && tempj != 0){
-                        //tempArray[x + i][y + j] == false
-                        tempArray[x + tempi][y + tempj] = false
-                        console.log('grab that note!')
-                    //synth.triggerAttackRelease(C4, now);
-                    }
-                    
+                // || x + tempi < 0 || y + tempj < 0 || y + tempj > 0
+                if(x + tempi >= tempArray.length || x + tempi < 0 || y + tempj < 0 || y + tempj >= tempArray.length){
+                    console.log('bad check!!!!','tempArray' + tempArray.length, x + tempi, y + tempj)
                 }
+                else {
+                    if(arrowTypes[z] === tempArray[x + tempi][y + tempj]){
+                        if(tempi != 0 && tempj != 0){
+                            //tempArray[x + i][y + j] == false
+                            tempArray[x + tempi][y + tempj] = false
+                            sampler.triggerAttackRelease(["C2"], 0.5);
+                            console.log('grab that note!')
+                        //synth.triggerAttackRelease(C4, now);
+                        }
+                        
+                    }
+                }
+                
             }
             
         }
@@ -265,18 +307,456 @@ function oneCycle(){
             
             //check agents first to adjust blocks before running the block cycle
             if(typeof tempArrayAgents[x][y] === 'string'){
+                if(tempArrayAgents[x][y] === '⇈'){
+                    tempChar = tempArrayAgents[x][y]
+                    arrayOfAgents[x][y] = tempChar
+                }
                 if(tempArrayAgents[x][y] === '🐕'){
                     console.log('move dog')
                 let tempChar = tempArrayAgents[x][y]
                 console.log(tempChar)
                 arrayOfAgents[x][y] = false
                 //calculates random integer for direction of movement
-                let direction = Math.floor(Math.random()*8)
+                let moved = false
+                let direction
+                let numberOfChecks = 0
+                while(moved !== true){
+                    let tempDirection = Math.floor(Math.random()*8)
+                    numberOfChecks ++
+                    let check
+
+                    
+                    if(tempDirection == 0){
+                        if(x + 1 >= arrayOfAgents.length){
+                                    check = false
+                            } else{
+                                //console.log(tempDirection + " tempDirection", numberOfChecks + "the number of checks", x, y, arrayOfAgents[x + 1], arrayOfAgents[x + 2], arrayOfAgents)
+                                if(tempArrayAgents[x + 1][y] == '⇈'){
+                                    
+                                    
+                                    check = false
+                                        console.log('prevented move because fence' + tempDirection)
+                                        
+                                    }
+                                else if(tempArrayAgents[x + 1][y] == '🐕'){
+                                    
+                                    
+                                    check = false
+                                        console.log('prevented move because dog' + tempDirection)
+                                        
+                                    }
+                                else if(arrayOfAgents[x + 1][y] == '🐕'){
+                                    
+                                    
+                                    check = false
+                                            console.log('prevented move because dog' + tempDirection)
+                                            
+                                    }
+                                else{
+                                    check = true
+                                }
+                            }
+                        
+                    } else if(tempDirection == 1){
+                        if(x - 1 < 0){
+                                     check = false
+                            } else {
+                                //console.log(tempDirection + " tempDirection", numberOfChecks + "the number of checks", tempArrayAgents[x - 1], y, tempArrayAgents[x-1][y])
+                                if(tempArrayAgents[x - 1][y] == '⇈'){
+                                    
+                                    
+                                    check = false
+                                        console.log('prevented move because fence' + tempDirection)
+                                        
+                                    }
+                                else if(tempArrayAgents[x - 1][y] == '🐕'){
+                                            
+                                            
+                                    check = false
+                                            console.log('prevented move because dog' + tempDirection)
+                                            
+                                    }
+                                else if(arrayOfAgents[x - 1][y] == '🐕'){
+                                            
+                                            
+                                    check = false
+                                            console.log('prevented move because dog' + tempDirection)
+                                            
+                                    }
+                                else{
+                                    check = true
+                                }
+                            }
+                        
+                        
+                    } else if(tempDirection == 2){
+                        if(y + 1 >= arrayOfAgents.length){
+                                check = false
+                            } else {
+                                //console.log(tempDirection + " tempDirection", numberOfChecks + "the number of checks", tempArrayAgents[x - 1], y, tempArrayAgents[x-1][y])
+                                if(tempArrayAgents[x][y + 1] == '⇈'){
+                                    
+                                    
+                                    check = false
+                                        console.log('prevented move because fence' + tempDirection)
+                                        
+                                    }
+                                else if(tempArrayAgents[x][y + 1] == '🐕'){
+                                            
+                                            
+                                    check = false
+                                            console.log('prevented move because dog' + tempDirection)
+                                            
+                                    }
+                                else if(arrayOfAgents[x][y + 1] == '🐕'){
+                                            
+                                            
+                                    check = false
+                                            console.log('prevented move because dog' + tempDirection)
+                                            
+                                    }
+                                else{
+                                    check = true
+                                }
+                            }
+                        
+                    } else if(tempDirection == 3){
+                        if(y - 1 < 0){
+                            check = false
+                        } else {
+                                //console.log(tempDirection + " tempDirection", numberOfChecks + "the number of checks", tempArrayAgents[x - 1], y, tempArrayAgents[x-1][y])
+                                if(tempArrayAgents[x][y - 1] == '⇈'){
+                                    
+                                    
+                                    check = false
+                                        console.log('prevented move because fence' + tempDirection)
+                                        
+                                    }
+                                else if(tempArrayAgents[x][y - 1] == '🐕'){
+                                            
+                                            
+                                    check = false
+                                            console.log('prevented move because dog' + tempDirection)
+                                            
+                                    }
+                                else if(arrayOfAgents[x][y - 1] == '🐕'){
+                                            
+                                            
+                                    check = false
+                                            console.log('prevented move because dog' + tempDirection)
+                                            
+                                    }
+                                else{
+                                    check = true
+                                }
+                            }
+                        
+                    } 
+                    // else if(tempDirection == 3){
+                    //     console.log(tempDirection + " tempDirection", numberOfChecks + "the number of checks", tempArrayAgents[x - 1], y, tempArrayAgents[x-1][y])
+                    //     if(tempArrayAgents[x][y - 1] == '⇈'){
+                            
+                            
+                    //         check = false
+                    //             console.log('prevented move because fence' + tempDirection)
+                                
+                    //         }
+                    //     else{
+                    //         check = true
+                    //     }
+                        
+                    // }
+
+                    // if(tempDirection == 0){
+                    //     if(x + 1 >= tempArrayAgents.length){
+                    //         check = false
+                    //     }else{
+                    //         if(tempArrayAgents[x + 1][y] == '⇈'){
+                    //             check = false 
+                    //             console.log('prevented move because fence' + tempDirection)
+                    //         }
+                    //         if(tempArrayAgents[x + 1][y] == '🐕'){
+                    //             check = false
+                    //         } else {
+                                
+                    //             check = true
+                    //         }
+                            
+                    //     }
+                    // } else if(tempDirection == 1){
+                    //     //left
+                    //     if(x - 1 < 0){
+                    //         check = false
+                    //     }else{
+                    //         console.log('the check' + tempArrayAgents[x - 1][y])
+                    //         if(tempArrayAgents[x - 1][y] == '⇈'){
+                    //             check = false 
+                    //             console.log('prevented move because fence' + tempDirection)
+                    //             console.log()
+                    //         }
+                    //         if(tempArrayAgents[x - 1][y] == '🐕'){
+                    //             check = false
+                    //         } else {
+                    //             //
+                    //             check = true
+                    //         }
+                    //     }
+                    // } else if(tempDirection == 2){
+                    //     //up
+                    //     if(y + 1 >= tempArrayAgents.length){
+                    //         check = false
+                    //     }else{
+                    //         console.log(tempArrayAgents[x][y + 1])
+                    //         if(tempArrayAgents[x][y + 1] == '⇈'){
+                    //             check = false 
+                    //             console.log('prevented move because fence' + tempDirection)
+                    //         }
+                    //         if(tempArrayAgents[x][y + 1] == '🐕'){
+                    //             check = false
+                    //         } else {
+                                
+                    //             check = true
+                    //         }
+                    //     }
+                    // } else if(tempDirection == 3){
+                    //     // down
+                    //     if(y - 1 < 0){
+                    //         check = false
+                    //     }else{
+                    //         console.log(tempArrayAgents[x][y - 1])
+                    //         if(tempArrayAgents[x][y - 1] == '⇈'){
+                    //             check = false 
+                    //             console.log('prevented move because fence' + tempDirection)
+                    //         }
+                    //         if(tempArrayAgents[x][y - 1] == '🐕'){
+                    //             check = false
+                    //         } else {
+                                
+                    //             check = true
+                    //         }
+                    //     }
+                    // } else if(tempDirection == 4){
+                    //     // top left
+                    //     if(x - 1 < 0 || y + 1 >= tempArrayAgents.length){
+                    //         check = false
+                    //     }else{
+                    //         if(tempArrayAgents[x - 1][y + 1] == '⇈'){
+                    //             check = false 
+                    //             console.log('prevented move because fence' + tempDirection)
+                    //         }
+                    //         if(tempArrayAgents[x - 1][y + 1] == '🐕'){
+                    //             check = false
+                    //         } else {
+                                
+                    //             check = true
+                    //         }
+                    //     }
+                    // } else if(tempDirection == 5){
+                    //     // top right
+                    //     if(x + 1 >= tempArrayAgents.length || y + 1 >= tempArrayAgents.length){
+                    //         check = false
+                    //     }else{
+                    //         if(tempArrayAgents[x + 1][y + 1] == '⇈'){
+                    //             check = false 
+                    //             console.log('prevented move because fence' + tempDirection)
+                    //         }
+                    //         if(tempArrayAgents[x + 1][y + 1] == '🐕'){
+                    //             check = false
+                    //         } else {
+                                
+                    //             check = true
+                    //         }
+                    //     }
+                    // } else if(tempDirection == 6){
+                    //     //bottom left
+                    //     if(x - 1 < 0 || y - 1 < 0){
+                    //         check = false
+                    //     }else{
+                    //         if(tempArrayAgents[x - 1][y - 1] == '⇈'){
+                    //             check = false 
+                    //             console.log('prevented move because fence' + tempDirection)
+                    //         }
+                    //         if(tempArrayAgents[x - 1][y - 1] == '🐕'){
+                    //             check = false
+                    //         } else {
+                                
+                    //             check = true
+                    //         }
+                    //     }
+                    // } else if(tempDirection == 7){
+                    //     //bottom righ
+                    //     if(x + 1 >= tempArrayAgents.length || y - 1 < 0){
+                    //         check = false
+                    //     }else{
+                    //         if(tempArrayAgents[x + 1][y - 1] == '⇈'){
+                    //             check = false 
+                    //             console.log('prevented move because fence' + tempDirection)
+                    //         }
+                    //         else if(tempArrayAgents[x + 1][y - 1] == '🐕'){
+                    //             check = false
+                    //         } else {
+                                
+                    //             check = false
+                    //         }
+                    //     }
+                    // }
+                    if(check == true){
+                            console.log('good move')
+                            direction = tempDirection
+                            break
+                        }
+                    
+                    
+                    // if(tempDirection == 0){
+                    //     if(x + 1 >= arrayOfAgents.length){
+                    //         check = false
+                    //     }else{
+                    //         if(arrayOfAgents[x + 1][y] == '⇈'){
+                    //             check = false 
+                    //             console.log('prevented move because fence' + tempDirection)
+                    //         }
+                    //         if(arrayOfAgents[x + 1][y] == '🐕'){
+                    //             check = false
+                    //         } else {
+                                
+                    //             check = true
+                    //         }
+                            
+                    //     }
+                    // } else if(tempDirection == 1){
+                    //     //left
+                    //     if(x - 1 < 0){
+                    //         check = false
+                    //     }else{
+                    //         console.log('the check' + arrayOfAgents[x - 1][y])
+                    //         if(arrayOfAgents[x - 1][y] == '⇈'){
+                    //             check = false 
+                    //             console.log('prevented move because fence' + tempDirection)
+                    //             console.log()
+                    //         }
+                    //         if(arrayOfAgents[x - 1][y] == '🐕'){
+                    //             check = false
+                    //         } else {
+                    //             //
+                    //             check = true
+                    //         }
+                    //     }
+                    // } else if(tempDirection == 2){
+                    //     //up
+                    //     if(y + 1 >= arrayOfAgents.length){
+                    //         check = false
+                    //     }else{
+                    //         console.log(arrayOfAgents[x][y + 1])
+                    //         if(arrayOfAgents[x][y + 1] == '⇈'){
+                    //             check = false 
+                    //             console.log('prevented move because fence' + tempDirection)
+                    //         }
+                    //         if(arrayOfAgents[x][y + 1] == '🐕'){
+                    //             check = false
+                    //         } else {
+                                
+                    //             check = true
+                    //         }
+                    //     }
+                    // } else if(tempDirection == 3){
+                    //     // down
+                    //     if(y - 1 < 0){
+                    //         check = false
+                    //     }else{
+                    //         console.log(arrayOfAgents[x][y - 1])
+                    //         if(arrayOfAgents[x][y - 1] == '⇈'){
+                    //             check = false 
+                    //             console.log('prevented move because fence' + tempDirection)
+                    //         }
+                    //         if(arrayOfAgents[x][y - 1] == '🐕'){
+                    //             check = false
+                    //         } else {
+                                
+                    //             check = true
+                    //         }
+                    //     }
+                    // } else if(tempDirection == 4){
+                    //     // top left
+                    //     if(x - 1 < 0 || y + 1 >= arrayOfAgents.length){
+                    //         check = false
+                    //     }else{
+                    //         if(arrayOfAgents[x - 1][y + 1] == '⇈'){
+                    //             check = false 
+                    //             console.log('prevented move because fence' + tempDirection)
+                    //         }
+                    //         if(arrayOfAgents[x - 1][y + 1] == '🐕'){
+                    //             check = false
+                    //         } else {
+                                
+                    //             check = true
+                    //         }
+                    //     }
+                    // } else if(tempDirection == 5){
+                    //     // top right
+                    //     if(x + 1 >= arrayOfAgents.length || y + 1 >= arrayOfAgents.length){
+                    //         check = false
+                    //     }else{
+                    //         if(arrayOfAgents[x + 1][y + 1] == '⇈'){
+                    //             check = false 
+                    //             console.log('prevented move because fence' + tempDirection)
+                    //         }
+                    //         if(arrayOfAgents[x + 1][y + 1] == '🐕'){
+                    //             check = false
+                    //         } else {
+                                
+                    //             check = true
+                    //         }
+                    //     }
+                    // } else if(tempDirection == 6){
+                    //     //bottom left
+                    //     if(x - 1 < 0 || y - 1 < 0){
+                    //         check = false
+                    //     }else{
+                    //         if(arrayOfAgents[x - 1][y - 1] == '⇈'){
+                    //             check = false 
+                    //             console.log('prevented move because fence' + tempDirection)
+                    //         }
+                    //         if(arrayOfAgents[x - 1][y - 1] == '🐕'){
+                    //             check = false
+                    //         } else {
+                                
+                    //             check = true
+                    //         }
+                    //     }
+                    // } else if(tempDirection == 7){
+                    //     //bottom righ
+                    //     if(x + 1 >= arrayOfAgents.length || y - 1 < 0){
+                    //         check = false
+                    //     }else{
+                    //         if(arrayOfAgents[x + 1][y - 1] == '⇈'){
+                    //             check = false 
+                    //             console.log('prevented move because fence' + tempDirection)
+                    //         }
+                    //         else if(arrayOfAgents[x + 1][y - 1] == '🐕'){
+                    //             check = false
+                    //         } else {
+                                
+                    //             check = false
+                    //         }
+                    //     }
+                    // }
+                    // if(check == true){
+                    //     console.log('good move')
+                    //     direction = tempDirection
+                    //     break
+                    // }
+                    // else{
+                    //     console.log('badmove')
+                    // }
+                    
+                }
                 dogGrabNote(tempArray,x,y)
+                console.log('tempDire before', arrayOfAgents[x], arrayOfAgents[x+1],arrayOfAgents)
 
                 if(direction == 0){
                     //right
                     arrayOfAgents[x + 1][y] = tempChar
+                    console.log('tempDire after', arrayOfAgents)
                 } else if(direction == 1){
                     //left
                     arrayOfAgents[x - 1][y] = tempChar
@@ -376,7 +856,8 @@ function oneCycle(){
                     arrayOfBoxes[x][y] = false
                     if((x + 1) == (tempArray.length - 1)){
                         const note = notes[(y % 11)]
-                        synth.triggerAttackRelease(note + 4, now);
+                        
+                        bongo.triggerAttackRelease(note + 2, 1);
                         //synth.triggerAttackRelease(note + 4, "8n");
                     }
                     if((x + 1) !== (tempArray.length)){
@@ -391,8 +872,7 @@ function oneCycle(){
                 arrayOfBoxes[x][y] = false
                 if((x - 1) == -1){
                     const note = notes[(y % 11)]
-                    //synth.triggerAttackRelease(note + 4, now);
-                    sampler.triggerAttackRelease(note + 4, 0.5);
+                    trumpet.triggerAttackRelease(note + 2, 1);
                     //synth.triggerAttackRelease(note + 4, "8n");
                 }
                 if((x - 1) !== -1){
@@ -407,7 +887,7 @@ function oneCycle(){
                 arrayOfBoxes[x][y] = false
                 if((y + 1) == (tempArray.length - 1)){
                     const note = notes[(x % 11)]
-                    monoSynth.triggerAttackRelease(note + 3, now);
+                    bongo.triggerAttackRelease(note + 1, "8n");
                     //synth.triggerAttackRelease(note + 4, "8n");
                 }
                 if((y + 1) !== (tempArray.length)){
@@ -423,7 +903,7 @@ function oneCycle(){
                 arrayOfBoxes[x][y] = false
                 if((y - 1) == -1){
                     const note = notes[(x % 11)]
-                    polySynth.triggerAttackRelease(note + 4, now);
+                    polySynth.triggerAttackRelease(note + 4, "8n");
                     //synth.triggerAttackRelease(note + 4, "8n");
                 }
                 if((y - 1) !== -1){
@@ -438,7 +918,7 @@ function oneCycle(){
            
         }
     }
-    console.log(arrayOfBoxes)
+    //console.log(arrayOfBoxes)
     drawRectangles()
 
 }
@@ -454,7 +934,7 @@ canvas.addEventListener("click", (e) => {
     const x = Math.floor((e.clientX - canvasDIM.left)/20)
     const y = Math.floor((e.clientY - canvasDIM.top)/20)
 
-    if(typeof arrayOfBoxes[x][y] == "string" && arrayOfAgents[x][y] !== '🐕' && currentBlock === '🐕'){
+    if(typeof arrayOfBoxes[x][y] == "string" && typeof arrayOfAgents[x][y] !== "string" && currentBlock === '🐕' || currentBlock === '⇈'){
         console.log('attatched dog on top',)
         arrayOfAgents[x][y] = currentBlock
     }else if(typeof arrayOfAgents[x][y] == "string"){
@@ -462,8 +942,8 @@ canvas.addEventListener("click", (e) => {
     }else if(typeof arrayOfBoxes[x][y] == "string"){
         arrayOfBoxes[x][y] = false
     }else{
-        if(currentBlock === '🐕'){
-            console.log('placed dog!')
+        if(currentBlock === '🐕' || currentBlock === '⇈'){
+            console.log('placed dog! or fence')
             arrayOfAgents[x][y] = currentBlock
         }else{
             arrayOfBoxes[x][y] = currentBlock
