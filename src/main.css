@@ -2,7 +2,19 @@ body {
   background-color: rgb(245, 240, 228);
   font-family: Arial, Helvetica, sans-serif;
 }
-
+p span{
+  text-indent: 8px;
+}
+li{
+  padding-left: 0;
+  font-size: 14px;
+  
+  color:rgb(147, 151, 85);
+  list-style: none;
+}
+ul{
+  list-style-type: none;
+}
 h4{
   color:rgb(44, 46, 25);
   margin-left: 4px;
@@ -13,7 +25,7 @@ h4{
 p{
   margin: 6px;
   font-size: 14px;
-  font-style: italic;
+  
   color:rgb(147, 151, 85)
 }
 
@@ -39,7 +51,64 @@ button{
   background-color: rgb(224, 224, 172);
   outline:none;
 }
+.modalWrapper{
+  
+  z-index: 3;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* bring your own prefixes */
+  transform: translate(-50%, -50%);
+}
+.bulletin{
+  padding-left: 8px;
+}
+.subBulletin{
+  text-indent: 8px;
+  margin-left: 20px;
+}
+.titleClose{
+  flex-wrap: wrap;
+  display: flex;
+}
+.closeAbout{
+  padding-top: 2px;
+  padding-right: 6px;
+  padding-left: 6px;
+  height: 24px;
+  position: absolute;
+  right: 14px;
+  top: 12px;
+}
+.closeAbout:active{
+  background-color: rgb(224, 224, 172);
+}
+#aboutModal{
+  display: block;
+}
+.about{
+  padding: 16px;
+  font-style: normal;
+  border-radius: 6px;
+ 
+  width: 480px;
+ 
+  
+  background-color: rgb(250, 225, 171);
+}
+#aboutButton{
+  color: black;
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  font-size: 24px;
+  background-color: transparent;
+}
+#aboutButton:hover{
+  color:rgb(223, 202, 182)
+}
 .toolbarWrapper{
+  
   border-radius: 6px;
   padding: 6px;
   width: 140px;
@@ -57,6 +126,7 @@ button{
   display: flex;
 }
 .container{
+  
   position: absolute;
   top: 50%;
   left: 50%;

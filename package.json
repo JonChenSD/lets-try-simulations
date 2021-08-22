@@ -15,6 +15,7 @@
     "live-server": "^1.2.1"
   },
   "dependencies": {
+    "nodemon": "^2.0.12",
     "tone": "^14.7.77"
   }
 }
