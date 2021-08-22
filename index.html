@@ -1,12 +1,41 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
     <meta charset="utf-8">
     <title>jons-little-gridworld</title>
     <link rel="stylesheet" href="bundle.css">
   </head>
   <body>
-      
+    <button id="aboutButton">?</button>
+    <div class="modalWrapper" id="aboutModal">
+      <button class="closeAbout" id="closeAbout">
+        ✖
+      </button>
+      <div class="about">
+        <h4>about</h4>
+        <p><i><b>welcome to this little world where the rhythm is the wind. <br><br>
+          in this world...</b></i></p>
+        
+        
+          <p class="bulletin"><i><b>♦ arrows</b></i> leave behind a sound when they disappear<br>
+            &emsp;&emsp;← → ↑ ↓ ↖ ↗ ↘ ↙ the arrows fly in different directions and can <br>&emsp;&emsp;ricochet to redirect</p>
+          <p class="bulletin"><i><b>♦ action blocks</b></i> produce and continuously create for the world <br>
+            &emsp;&emsp;⇦ ⇧ ⇨ ⇩ closed-arrow action blocks shoot an arrow in their <br>&emsp;&emsp; designated direction <br>
+            &emsp;&emsp;⇐ ⇑ ⇒ ⇓ open-arrow action blocks do the same at a slower rate</p>
+          <p class="bulletin"><i><b>♦ animals</b></i> carve and make way for the landscape serving as the orchestrators <br>
+            &emsp;&emsp;🐕 dogs will catch any arrows they come across, barking in joy <br>
+            &emsp;&emsp;🦌 deer will silently do the same <br>
+            &emsp;&emsp;🐂 oxen will push, move, or even destroy a block</p>
+          <p class="bulletin"><i><b>♦ obstacles</b></i> halt paths and can help shape the environment <br>
+            &emsp;&emsp;⇈ fences are objects that animals cannot move through</p>
+          
+      </div>
+    </div>
+    
       
       <div class="toolbarWrapper">
         <h4>toolbar</h4>
@@ -20,37 +49,46 @@
       <br>
       <button id="clearBtn">clear</button>
       
-        <p>note arrows</p>
+        <p><i>arrows</i></p>
         <div class="toolbar">
           <button class="block" id="left"> ← </button>
         <button class="block" id="right"> → </button>
         <button class="block" id="up"> ↑ </button>
         <button class="block" id="down"> ↓ </button>
+        <button class="block" id="topright"> ↗ </button>
+        <button class="block" id="topleft"> ↖ </button>
         </div>
        
         
-        <p>note generators</p>
+        <p><i>action blocks</i></p>
         <div class="toolbar">
           
-        <button class="block" id="left"> 🡸 </button>
-        <button class="block" id="right"> 🡺 </button>
-        <button class="block" id="up"> 🡹 </button>
-        <button class="block" id="down"> 🡻 </button>
-        <button class="block" id="left"> 🡨 </button>
-        <button class="block" id="right"> 🡪 </button>
-        <button class="block" id="up"> 🡩 </button>
-        <button class="block" id="down"> 🡫 </button>
+        <button class="block" id="left"> ⇦ </button>
+        <button class="block" id="right"> ⇨ </button>
+        <button class="block" id="up"> ⇧ </button>
+        <button class="block" id="down"> ⇩ </button>
+        <button class="block" id="left"> ⇐ </button>
+        <button class="block" id="right"> ⇒ </button>
+        <button class="block" id="up"> ⇑ </button>
+        <button class="block" id="down"> ⇓ </button>
         </div>
         
-        <p>misc</p>
+        <p><i>animals</i></p>
         
         <div class="toolbar">
           <button class="block"> 🐕 </button>
+          <button class="block"> 🦌 </button>
+        <button class="block"> 🐂 </button>
+        </div>
+
+        <p><i>obstacles</i></p>
+        
+        <div class="toolbar">
         <button class="block"> ⇈ </button>
         
-        <button class="block"> ❋ </button>
+        <!-- <button class="block"> ❋ </button>
         <button class="block"> ♪ </button>
-        <button class="block"> ⟋ </button>
+        <button class="block"> ⟋ </button> -->
         </div>
         
         
