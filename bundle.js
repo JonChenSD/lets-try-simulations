@@ -10538,14 +10538,24 @@ var piano = new Tone.Sampler({
     bongo.triggerAttackRelease(["C1", "E1", "G1", "B1"], 0.5);
   }
 }).toDestination();
-var bongo = new Tone.Sampler({
+var bongo1 = new Tone.Sampler({
   urls: {
     A1: "bongo1.mp3",
+    A2: "bongo1.mp3"
+  },
+  baseUrl: "./assets/",
+  onload: () => {
+    bongo1.triggerAttackRelease(["C1", "E1", "G1", "B1"], 0.5);
+  }
+}).toDestination();
+var bongo2 = new Tone.Sampler({
+  urls: {
+    A1: "bongo2.mp3",
     A2: "bongo2.mp3"
   },
   baseUrl: "./assets/",
   onload: () => {
-    bongo.triggerAttackRelease(["C1", "E1", "G1", "B1"], 0.5);
+    bongo2.triggerAttackRelease(["C1", "E1", "G1", "B1"], 0.5);
   }
 }).toDestination();
 var trumpet = new Tone.Sampler({
@@ -10626,14 +10636,14 @@ var player = {
         piano.triggerAttackRelease(note + 1, 1);
         break;
       case "bongo1":
-        note = notes[y % 11];
+        note = notes[x % 11];
         console.log(x, y, notes, note);
-        bongo.triggerAttackRelease(note + 1, 1);
+        bongo1.triggerAttackRelease(note + 1, 1);
         break;
       case "bongo2":
         note = notes[y % 11];
         console.log(x, y, notes, note);
-        bongo.triggerAttackRelease(note + 2, 1);
+        bongo2.triggerAttackRelease(note + 2, 1);
         break;
       case "trumpet":
         note = notes[y % 11];
@@ -11196,8 +11206,8 @@ function oneCycle() {
           case "\u2193":
             arrayOfBoxes[x][y] = false;
             if (y + 1 == tempArray.length - 1) {
-              console.log("bongo1");
-              player.play("bongo1 ", x, y);
+              console.log("bongo");
+              player.play("bongo1", x, y);
             } else {
               if (arrayOfBoxes[x][y + 1] != false) {
                 console.log("found hit!", tempArrow, arrayOfBoxes[x][y + 1], arrow_default(tempArrow, arrayOfBoxes[y - 1][y]));
